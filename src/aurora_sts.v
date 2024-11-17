@@ -25,6 +25,8 @@
 // ---------------------------------------------------------------------------------------
 // Revision      : 1.0
 // Description   : File Created
+// Revision      : 1.1
+// Description   : Add powerdown signal
 // ---------------------------------------------------------------------------------------
 // Synthesizable : Yes
 // Clock Domains : clk
@@ -54,11 +56,12 @@ module aurora_sts #(
     (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 ext_pma_init RST" *)
     (* X_INTERFACE_PARAMETER = "POLARITY ACTIVE_HIGH" *)
     input wire ext_pma_init,  // 用户控制 pma 复位
-
+    input  wire                  ext_pd,                    // 用户控制 power down
     input  wire                  aurora_init_clk,           //
     input  wire                  aurora_user_clk_out,       //
     output wire                  aurora_reset_pb,           // phy 复位
     output wire                  aurora_pma_init,           // pma 复位
+    output wire                  aurora_pd,                 // powerdown
     (* X_INTERFACE_INFO = "xilinx.com:display_aurora:core_status_out:1.0 core_status CHANNEL_UP" *)
     input  wire                  aurora_sts_channel_up,     // CHANNEL_UP
     (* X_INTERFACE_INFO = "xilinx.com:display_aurora:core_status_out:1.0 core_status HARD_ERR" *)
@@ -71,7 +74,8 @@ module aurora_sts #(
     input  wire                  aurora_sts_soft_err,       // SOFT_ERR
     (* X_INTERFACE_INFO = "xilinx.com:display_aurora:core_status_out:1.0 core_status GT_PLL_LOCK" *)
     input  wire                  aurora_sts_gt_pll_lock,    // GT_PLL_LOCK
-    output wire [(LANE_NUM+4):0] aurora_sts_cdc
+    output wire [(LANE_NUM+4):0] aurora_sts_cdc,
+    output wire                  link_state
 );
     //  自动复位时间
     localparam RESET_TIME = C_CLK_FREQ + 2048 + 2048;
@@ -92,6 +96,19 @@ module aurora_sts #(
         .src_in  ({aurora_sts_hard_err, aurora_sts_soft_err, aurora_sts_channel_up, aurora_sts_lane_up}),
         .dest_clk(clk),
         .dest_out(aurora_sts_cdc[(LANE_NUM+2):0])
+    );
+
+    xpm_cdc_array_single #(
+        .DEST_SYNC_FF  (4),
+        .INIT_SYNC_FF  (0),
+        .SIM_ASSERT_CHK(0),
+        .SRC_INPUT_REG (1),
+        .WIDTH         (1)
+    ) aurora_pd_cdc_inst0 (
+        .src_clk (clk),
+        .src_in  (ext_pd),
+        .dest_clk(aurora_user_clk_out),
+        .dest_out(aurora_pd)
     );
 
     generate
@@ -177,6 +194,8 @@ module aurora_sts #(
             end
         end
     end
+
+    assign link_state = aurora_sts_cdc[LANE_NUM];
 
 endmodule
 

@@ -62,11 +62,11 @@ module aurora_8b10b_0_support #(
     output                     m_axi_rx_tvalid,
 
     // GT Serial I/O
-    input [LANE_NUM-1:0] rxp,
-    input [LANE_NUM-1:0] rxn,
+    input [0:LANE_NUM-1] rxp,
+    input [0:LANE_NUM-1] rxn,
 
-    output [LANE_NUM-1:0] txp,
-    output [LANE_NUM-1:0] txn,
+    output [0:LANE_NUM-1] txp,
+    output [0:LANE_NUM-1] txn,
 
     // GT Reference Clock Interface
     input                 gt_refclk,
@@ -74,7 +74,7 @@ module aurora_8b10b_0_support #(
     output                hard_err,
     output                soft_err,
     // Status
-    output [LANE_NUM-1:0] lane_up,
+    output [0:LANE_NUM-1] lane_up,
     output                channel_up,
     // System Interface
     output                user_clk_out,

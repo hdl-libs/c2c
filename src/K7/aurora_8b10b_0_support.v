@@ -62,11 +62,11 @@ module aurora_8b10b_0_support #(
     output                     m_axi_rx_tvalid,
 
     // GT Serial I/O
-    input [LANE_NUM-1:0] rxp,
-    input [LANE_NUM-1:0] rxn,
+    input [0:LANE_NUM-1] rxp,
+    input [0:LANE_NUM-1] rxn,
 
-    output [LANE_NUM-1:0] txp,
-    output [LANE_NUM-1:0] txn,
+    output [0:LANE_NUM-1] txp,
+    output [0:LANE_NUM-1] txn,
 
     // GT Reference Clock Interface
     input                 gt_refclk,
@@ -74,7 +74,7 @@ module aurora_8b10b_0_support #(
     output                hard_err,
     output                soft_err,
     // Status
-    output [LANE_NUM-1:0] lane_up,
+    output [0:LANE_NUM-1] lane_up,
     output                channel_up,
     // System Interface
     output                user_clk_out,
@@ -94,9 +94,9 @@ module aurora_8b10b_0_support #(
     // GT_COMMON
     input  gt_qpllclk_quad1_i,
     input  gt_qpllrefclk_quad1_i,
-    input  gt0_qplllock_i,
-    input  gt0_qpllrefclklost_i,
-    output gt0_qpllreset_out,
+    input  gt_qplllock_i,
+    input  gt_qpllrefclklost_i,
+    output gt_qpllreset_out,
 
     //
     //DRP Ports
@@ -196,14 +196,16 @@ module aurora_8b10b_0_support #(
         .drpwe_in        (0),
         .drprdy_out      (),
         .drpdo_out       (),
-
-
-        .gt0_qplllock_in       (gt0_qplllock_i),
-        .gt0_qpllrefclklost_in (gt0_qpllrefclklost_i),
-        .gt0_qpllreset_out     (gt0_qpllreset_out),
+        //------------------{
+        //_________________COMMON PORTS _______________________________{
+        //    ------------------------- Common Block - QPLL Ports ------------------------
+        .gt0_qplllock_in       (gt_qplllock_i),
+        .gt0_qpllrefclklost_in (gt_qpllrefclklost_i),
+        .gt0_qpllreset_out     (gt_qpllreset_out),
         .gt_qpllclk_quad1_in   (gt_qpllclk_quad1_i),
         .gt_qpllrefclk_quad1_in(gt_qpllrefclk_quad1_i),
-
+        //____________________________COMMON PORTS ,_______________________________}
+        //------------------}
         .sys_reset_out(sys_reset_out),
         .tx_out_clk   (tx_out_clk_i)
     );
